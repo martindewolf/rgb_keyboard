@@ -1,128 +1,138 @@
 #!/usr/bin/env python3
 """
-RGB Keyboard GUI Controller (pure tkinter versie)
+RGB Keyboard GUI Controller (CustomTkinter versie)
 
 Gebruikt het bestaande `keyboard_light` CLI-commando om de RGB-instellingen toe te passen.
 """
 
-import tkinter as tk
-from tkinter import ttk, colorchooser, messagebox
+import customtkinter as ctk
+from tkinter import colorchooser, messagebox
 import subprocess
 import sys
 from .arguments import Pattern, DEFAULT_PATTERN, DEFAULT_COLORS
 
 
-class RGBKeyboardGUI(tk.Tk):
+class RGBKeyboardGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         self.title("RGB Keyboard Controller")
-        self.geometry("800x500")
-        self.minsize(700, 400)
+        self.geometry("900x600")
+        self.minsize(800, 500)
+        
+        # Set appearance mode and color theme
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
 
         self.colors = DEFAULT_COLORS.copy()
-        self.pattern_var = tk.StringVar(value=DEFAULT_PATTERN)
-        self.speed_var = tk.IntVar(value=5)
-        self.intensity_var = tk.IntVar(value=16)
+        self.pattern_var = ctk.StringVar(value=DEFAULT_PATTERN)
+        self.speed_var = ctk.IntVar(value=5)
+        self.intensity_var = ctk.IntVar(value=16)
 
         self._build_ui()
 
     def _build_ui(self):
-        main = ttk.Frame(self, padding=10)
-        main.pack(fill=tk.BOTH, expand=True)
+        main = ctk.CTkFrame(self)
+        main.pack(fill=ctk.BOTH, expand=True, padx=20, pady=20)
 
-        title = ttk.Label(main, text="RGB Keyboard Controller", font=("Segoe UI", 18, "bold"))
-        title.pack(pady=(0, 10))
+        title = ctk.CTkLabel(main, text="RGB Keyboard Controller", font=("Arial", 24, "bold"))
+        title.pack(pady=(0, 20))
 
-        top_frame = ttk.Frame(main)
-        top_frame.pack(fill=tk.X, pady=5)
+        top_frame = ctk.CTkFrame(main)
+        top_frame.pack(fill=ctk.X, pady=10)
 
-        pattern_frame = ttk.Frame(top_frame)
-        pattern_frame.pack(side=tk.LEFT, padx=10)
-        ttk.Label(pattern_frame, text="Pattern:").pack(anchor="w")
+        pattern_frame = ctk.CTkFrame(top_frame)
+        pattern_frame.pack(side=ctk.LEFT, padx=10)
+        pattern_label = ctk.CTkLabel(pattern_frame, text="Pattern:", font=("Arial", 12))
+        pattern_label.pack(anchor="w")
         patterns = list(Pattern.choices())
-        pattern_combo = ttk.Combobox(
+        pattern_combo = ctk.CTkComboBox(
             pattern_frame,
-            textvariable=self.pattern_var,
             values=patterns,
+            variable=self.pattern_var,
             state="readonly",
-            width=15,
+            width=150
         )
-        pattern_combo.pack()
+        pattern_combo.pack(pady=5)
 
-        speed_frame = ttk.Frame(top_frame)
-        speed_frame.pack(side=tk.LEFT, padx=30)
-        ttk.Label(speed_frame, text="Speed (0–8):").pack(anchor="w")
-        speed_scale = ttk.Scale(
+        speed_frame = ctk.CTkFrame(top_frame)
+        speed_frame.pack(side=ctk.LEFT, padx=30)
+        speed_label = ctk.CTkLabel(speed_frame, text="Speed (0–8):", font=("Arial", 12))
+        speed_label.pack(anchor="w")
+        speed_slider = ctk.CTkSlider(
             speed_frame,
             from_=0,
             to=8,
-            orient=tk.HORIZONTAL,
+            number_of_steps=8,
             variable=self.speed_var,
             command=lambda v: self._update_label(self.speed_value_label, int(float(v))),
         )
-        speed_scale.pack(fill=tk.X)
-        self.speed_value_label = ttk.Label(speed_frame, text=str(self.speed_var.get()))
+        speed_slider.pack(fill=ctk.X, pady=5)
+        self.speed_value_label = ctk.CTkLabel(speed_frame, text=str(self.speed_var.get()), font=("Arial", 10))
         self.speed_value_label.pack(anchor="e")
 
-        intensity_frame = ttk.Frame(top_frame)
-        intensity_frame.pack(side=tk.LEFT, padx=30)
-        ttk.Label(intensity_frame, text="Intensity (0–32):").pack(anchor="w")
-        intensity_scale = ttk.Scale(
+        intensity_frame = ctk.CTkFrame(top_frame)
+        intensity_frame.pack(side=ctk.LEFT, padx=30)
+        intensity_label = ctk.CTkLabel(intensity_frame, text="Intensity (0–32):", font=("Arial", 12))
+        intensity_label.pack(anchor="w")
+        intensity_slider = ctk.CTkSlider(
             intensity_frame,
             from_=0,
             to=32,
-            orient=tk.HORIZONTAL,
+            number_of_steps=32,
             variable=self.intensity_var,
             command=lambda v: self._update_label(self.intensity_value_label, int(float(v))),
         )
-        intensity_scale.pack(fill=tk.X)
-        self.intensity_value_label = ttk.Label(intensity_frame, text=str(self.intensity_var.get()))
+        intensity_slider.pack(fill=ctk.X, pady=5)
+        self.intensity_value_label = ctk.CTkLabel(intensity_frame, text=str(self.intensity_var.get()), font=("Arial", 10))
         self.intensity_value_label.pack(anchor="e")
 
-        color_section = ttk.Labelframe(main, text="Colors", padding=10)
-        color_section.pack(fill=tk.BOTH, expand=True, pady=10)
+        color_section = ctk.CTkFrame(main)
+        color_section.pack(fill=ctk.BOTH, expand=True, pady=20)
+        
+        color_label = ctk.CTkLabel(color_section, text="Colors", font=("Arial", 14, "bold"))
+        color_label.pack(anchor="w", padx=10, pady=(0, 10))
 
-        self.colors_frame = ttk.Frame(color_section)
-        self.colors_frame.pack(fill=tk.X, pady=(0, 10))
+        self.colors_frame = ctk.CTkFrame(color_section)
+        self.colors_frame.pack(fill=ctk.X, padx=10, pady=(0, 10))
 
-        btn_frame = ttk.Frame(color_section)
-        btn_frame.pack(fill=tk.X)
+        btn_frame = ctk.CTkFrame(color_section)
+        btn_frame.pack(fill=ctk.X, padx=10)
 
-        add_btn = ttk.Button(btn_frame, text="Add Color…", command=self.add_color)
-        add_btn.pack(side=tk.LEFT, padx=5)
+        add_btn = ctk.CTkButton(btn_frame, text="Add Color…", command=self.add_color, width=120)
+        add_btn.pack(side=ctk.LEFT, padx=5)
 
-        clear_btn = ttk.Button(btn_frame, text="Clear", command=self.clear_colors)
-        clear_btn.pack(side=tk.LEFT, padx=5)
+        clear_btn = ctk.CTkButton(btn_frame, text="Clear", command=self.clear_colors, width=120)
+        clear_btn.pack(side=ctk.LEFT, padx=5)
 
-        preset_btn = ttk.Button(btn_frame, text="Rainbow Preset", command=self.set_rainbow_preset)
-        preset_btn.pack(side=tk.LEFT, padx=5)
+        preset_btn = ctk.CTkButton(btn_frame, text="Rainbow Preset", command=self.set_rainbow_preset, width=120)
+        preset_btn.pack(side=ctk.LEFT, padx=5)
 
-        fire_btn = ttk.Button(btn_frame, text="Fire Preset", command=self.set_fire_preset)
-        fire_btn.pack(side=tk.LEFT, padx=5)
+        fire_btn = ctk.CTkButton(btn_frame, text="Fire Preset", command=self.set_fire_preset, width=120)
+        fire_btn.pack(side=ctk.LEFT, padx=5)
 
-        ocean_btn = ttk.Button(btn_frame, text="Ocean Preset", command=self.set_ocean_preset)
-        ocean_btn.pack(side=tk.LEFT, padx=5)
+        ocean_btn = ctk.CTkButton(btn_frame, text="Ocean Preset", command=self.set_ocean_preset, width=120)
+        ocean_btn.pack(side=ctk.LEFT, padx=5)
 
-        apply_frame = ttk.Frame(main)
-        apply_frame.pack(fill=tk.X, pady=10)
+        apply_frame = ctk.CTkFrame(main)
+        apply_frame.pack(fill=ctk.X, pady=10)
 
-        self.apply_button = ttk.Button(apply_frame, text="Apply to Keyboard", command=self.apply_settings)
-        self.apply_button.pack(ipady=5)
+        self.apply_button = ctk.CTkButton(apply_frame, text="Apply to Keyboard", command=self.apply_settings, height=40, font=("Arial", 14))
+        self.apply_button.pack(fill=ctk.X)
 
-        self.status_var = tk.StringVar(value="Ready")
-        status_bar = ttk.Label(self, textvariable=self.status_var, anchor="w", relief=tk.SUNKEN)
-        status_bar.pack(fill=tk.X, side=tk.BOTTOM)
+        self.status_var = ctk.StringVar(value="Ready")
+        status_bar = ctk.CTkLabel(self, textvariable=self.status_var, font=("Arial", 10))
+        status_bar.pack(fill=ctk.X, side=ctk.BOTTOM, padx=10, pady=5)
 
         self.update_colors_display()
 
-    def _update_label(self, label: tk.Label, value: int) -> None:
+    def _update_label(self, label: ctk.CTkLabel, value: int) -> None:
         """Update label text with a value."""
-        label.config(text=str(value))
+        label.configure(text=str(value))
 
     def _show_success_dialog(self) -> None:
         """Show custom success dialog with Ok and Exit buttons."""
-        dialog = tk.Toplevel(self)
+        dialog = ctk.CTkToplevel(self)
         dialog.title("Success")
         dialog.geometry("350x150")
         dialog.resizable(False, False)
@@ -135,17 +145,17 @@ class RGBKeyboardGUI(tk.Tk):
         y = self.winfo_y() + (self.winfo_height() // 2) - (dialog.winfo_height() // 2)
         dialog.geometry(f"+{x}+{y}")
         
-        label = ttk.Label(dialog, text="Settings applied to keyboard.", padding=20)
-        label.pack(fill=tk.BOTH, expand=True)
+        label = ctk.CTkLabel(dialog, text="Settings applied to keyboard.", font=("Arial", 12), padx=20, pady=20)
+        label.pack(fill=ctk.BOTH, expand=True)
         
-        button_frame = ttk.Frame(dialog, padding=10)
-        button_frame.pack(fill=tk.X)
+        button_frame = ctk.CTkFrame(dialog)
+        button_frame.pack(fill=ctk.X, padx=10, pady=10)
         
-        ok_btn = ttk.Button(button_frame, text="Ok", command=lambda: (dialog.destroy(), self.status_var.set("Ready")))
-        ok_btn.pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+        ok_btn = ctk.CTkButton(button_frame, text="Ok", command=lambda: (dialog.destroy(), self.status_var.set("Ready")))
+        ok_btn.pack(side=ctk.LEFT, padx=5, expand=True, fill=ctk.X)
         
-        exit_btn = ttk.Button(button_frame, text="Exit", command=self.quit)
-        exit_btn.pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+        exit_btn = ctk.CTkButton(button_frame, text="Exit", command=self.quit)
+        exit_btn.pack(side=ctk.LEFT, padx=5, expand=True, fill=ctk.X)
 
     def update_colors_display(self) -> None:
         """Update the colors display frame."""
@@ -153,22 +163,25 @@ class RGBKeyboardGUI(tk.Tk):
             child.destroy()
 
         if not self.colors:
-            ttk.Label(self.colors_frame, text="No colors selected.").pack(anchor="w")
+            label = ctk.CTkLabel(self.colors_frame, text="No colors selected.", font=("Arial", 11))
+            label.pack(anchor="w", padx=5)
             return
 
         for idx, color in enumerate(self.colors):
-            item_frame = ttk.Frame(self.colors_frame)
-            item_frame.pack(side=tk.LEFT, padx=3, pady=3)
+            item_frame = ctk.CTkFrame(self.colors_frame, fg_color=color, corner_radius=5)
+            item_frame.pack(side=ctk.LEFT, padx=3, pady=3)
 
-            canvas = tk.Canvas(item_frame, width=40, height=40, bg=color, highlightthickness=1)
-            canvas.pack()
+            label = ctk.CTkLabel(item_frame, text=color, text_color="white", font=("Arial", 9), padx=5, pady=5)
+            label.pack()
 
-            ttk.Label(item_frame, text=color).pack()
-
-            remove_btn = ttk.Button(
+            remove_btn = ctk.CTkButton(
                 item_frame,
                 text="X",
-                width=2,
+                width=30,
+                height=25,
+                font=("Arial", 10),
+                fg_color="red",
+                hover_color="darkred",
                 command=lambda i=idx: self.remove_color(i),
             )
             remove_btn.pack(pady=2)
@@ -230,7 +243,7 @@ class RGBKeyboardGUI(tk.Tk):
         ]
 
         self.status_var.set("Applying settings…")
-        self.apply_button.config(state=tk.DISABLED)
+        self.apply_button.configure(state=ctk.DISABLED)
         self.update_idletasks()
 
         try:
@@ -262,7 +275,7 @@ class RGBKeyboardGUI(tk.Tk):
                     f"Failed to apply settings.\n\nCommand:\n{' '.join(cmd)}\n\nOutput:\n{err}",
                 )
         finally:
-            self.apply_button.config(state=tk.NORMAL)
+            self.apply_button.configure(state=ctk.NORMAL)
 
 
 def main() -> None:

@@ -29,7 +29,6 @@ setup(
     package_data={"": list(find_all("rgb_keyboard"))},
     include_package_data=True,
     install_requires=[
-        # hid kan ook via hidapi komen, afhankelijk van je setup
         "hid",
         "elevate",
         "customtkinter",
