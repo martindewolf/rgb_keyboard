@@ -1,9 +1,9 @@
 import argparse
-import textwrap
-from elevate import elevate
 import os
+from itertools import cycle
+from elevate import elevate
 
-from rgb_keyboard.driver import KeyboardControler
+from rgb_keyboard.driver import KeyboardController
 from rgb_keyboard.arguments import Color, Pattern, UltimateHelpFormatter, DEFAULT_PATTERN, DEFAULT_COLORS
 
 
@@ -35,26 +35,24 @@ parser.add_argument("-r", "--no_root_privileges", dest='root', action='store_tru
                     help="Set argument if no root privileges should be requested.",
                     default=False)
 
-def main():
+
+def main() -> None:
+    """Main entry point for the CLI."""
     parsed = parser.parse_args()
     colors = [Color.get_by_name(color) for color in parsed.colors.split(",")]
     colors = _expand_colors_to(colors, 7)
     pattern = Pattern.get_by_name(parsed.pattern)
 
-    if not os.geteuid() == 0 and not parsed.root:
+    if os.geteuid() != 0 and not parsed.root:
         elevate()
 
-    KeyboardControler().send_args(colors, pattern, parsed.intensity, parsed.speed)
+    KeyboardController().send_args(colors, pattern, parsed.intensity, parsed.speed)
 
-def _expand_colors_to(colors: list[Color], to: int):
-    # repeat colors until there are amount of colors
-    number_of_suplied_colors = len(colors)
-    number_of_expanded_colors = 0
-    expanded_colors = []
-    while len(expanded_colors) < to:
-        expanded_colors.append(colors[number_of_expanded_colors % number_of_suplied_colors])
-        number_of_expanded_colors += 1
-    return expanded_colors
+
+def _expand_colors_to(colors: list[Color], count: int) -> list[Color]:
+    """Repeat colors until reaching the desired count."""
+    color_cycle = cycle(colors)
+    return [next(color_cycle) for _ in range(count)]
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,15 @@
 import argparse
 from enum import Enum
 
+
+class _HexColor:
+    """Temporary Color-like object for arbitrary hex colors."""
+    def __init__(self, hex_val: str) -> None:
+        self.hex_value = hex_val
+        r, g, b = int(hex_val[1:3], 16), int(hex_val[3:5], 16), int(hex_val[5:], 16)
+        self.rgb = [r, g, b]
+
+
 DEFAULT_PATTERN = "breathing"
 DEFAULT_COLORS = ["#FF0000", "#FFFFFF", "#0000FF"]
 
@@ -35,10 +44,12 @@ class Color(Enum):
 
     @staticmethod
     def choices():
+        """Get list of available color names."""
         return [e.name.lower() for e in Color]
     
     @staticmethod
     def get_by_name(name: str):
+        """Get color by name or hex value."""
         try:
             return Color[name.upper()]
         except KeyError:
@@ -53,13 +64,7 @@ class Color(Enum):
                 # Validate it's a valid hex color
                 try:
                     int(name_upper[1:], 16)
-                    # Create a simple object with the rgb attribute needed by the driver
-                    class HexColor:
-                        def __init__(self, hex_val):
-                            self.hex_value = hex_val
-                            r, g, b = int(hex_val[1:3], 16), int(hex_val[3:5], 16), int(hex_val[5:], 16)
-                            self.rgb = [r, g, b]
-                    return HexColor(name_upper)
+                    return _HexColor(name_upper)
                 except ValueError:
                     raise ValueError(f"Invalid hex color: {name}")
             
@@ -84,10 +89,12 @@ class Pattern(Enum):
 
     @staticmethod
     def choices():
+        """Get list of available pattern names."""
         return [e.name.lower() for e in Pattern]
     
     @staticmethod
     def get_by_name(name: str):
+        """Get pattern by name."""
         try:
             return Pattern[name.upper()]
         except KeyError:

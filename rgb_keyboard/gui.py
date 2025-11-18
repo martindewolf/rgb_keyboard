@@ -116,10 +116,39 @@ class RGBKeyboardGUI(tk.Tk):
 
         self.update_colors_display()
 
-    def _update_label(self, label, value: int):
+    def _update_label(self, label: tk.Label, value: int) -> None:
+        """Update label text with a value."""
         label.config(text=str(value))
 
-    def update_colors_display(self):
+    def _show_success_dialog(self) -> None:
+        """Show custom success dialog with Ok and Exit buttons."""
+        dialog = tk.Toplevel(self)
+        dialog.title("Success")
+        dialog.geometry("350x150")
+        dialog.resizable(False, False)
+        dialog.transient(self)
+        dialog.grab_set()
+        
+        # Center the dialog
+        dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - (dialog.winfo_width() // 2)
+        y = self.winfo_y() + (self.winfo_height() // 2) - (dialog.winfo_height() // 2)
+        dialog.geometry(f"+{x}+{y}")
+        
+        label = ttk.Label(dialog, text="Settings applied to keyboard.", padding=20)
+        label.pack(fill=tk.BOTH, expand=True)
+        
+        button_frame = ttk.Frame(dialog, padding=10)
+        button_frame.pack(fill=tk.X)
+        
+        ok_btn = ttk.Button(button_frame, text="Ok", command=lambda: (dialog.destroy(), self.status_var.set("Ready")))
+        ok_btn.pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+        
+        exit_btn = ttk.Button(button_frame, text="Exit", command=self.quit)
+        exit_btn.pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+
+    def update_colors_display(self) -> None:
+        """Update the colors display frame."""
         for child in self.colors_frame.winfo_children():
             child.destroy()
 
@@ -144,38 +173,45 @@ class RGBKeyboardGUI(tk.Tk):
             )
             remove_btn.pack(pady=2)
 
-    def add_color(self):
+    def add_color(self) -> None:
+        """Add a color using the color chooser dialog."""
         color = colorchooser.askcolor(title="Choose a color")
         if color and color[1]:
             self.colors.append(color[1].upper())
             self.update_colors_display()
 
-    def clear_colors(self):
+    def clear_colors(self) -> None:
+        """Clear all colors after user confirmation."""
         if messagebox.askyesno("Clear colors", "Remove all colors?"):
             self.colors.clear()
             self.update_colors_display()
 
-    def set_rainbow_preset(self):
+    def set_rainbow_preset(self) -> None:
+        """Set rainbow color preset."""
         self.colors = [
             "#FF0000", "#FF7F00", "#FFFF00",
             "#00FF00", "#0000FF", "#4B0082", "#9400D3"
         ]
         self.update_colors_display()
 
-    def set_fire_preset(self):
+    def set_fire_preset(self) -> None:
+        """Set fire color preset."""
         self.colors = ["#FF0000", "#FF4500", "#FFA500", "#FFD700"]
         self.update_colors_display()
 
-    def set_ocean_preset(self):
+    def set_ocean_preset(self) -> None:
+        """Set ocean color preset."""
         self.colors = ["#000080", "#0000FF", "#00BFFF", "#87CEEB"]
         self.update_colors_display()
 
-    def remove_color(self, index: int):
+    def remove_color(self, index: int) -> None:
+        """Remove a color at the given index."""
         if 0 <= index < len(self.colors):
             self.colors.pop(index)
             self.update_colors_display()
 
-    def apply_settings(self):
+    def apply_settings(self) -> None:
+        """Apply the current settings to the keyboard."""
         if not self.colors:
             messagebox.showwarning("No colors", "Please add at least one color.")
             return
@@ -217,7 +253,7 @@ class RGBKeyboardGUI(tk.Tk):
         else:
             if result.returncode == 0:
                 self.status_var.set("Settings applied successfully.")
-                messagebox.showinfo("Success", "Settings applied to keyboard.")
+                self._show_success_dialog()
             else:
                 err = result.stderr or result.stdout or "<no output>"
                 self.status_var.set("Error applying settings.")
@@ -229,7 +265,8 @@ class RGBKeyboardGUI(tk.Tk):
             self.apply_button.config(state=tk.NORMAL)
 
 
-def main():
+def main() -> None:
+    """Main entry point for the GUI."""
     app = RGBKeyboardGUI()
     app.mainloop()
 
