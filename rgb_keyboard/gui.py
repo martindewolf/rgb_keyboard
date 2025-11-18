@@ -9,43 +9,38 @@ import tkinter as tk
 from tkinter import ttk, colorchooser, messagebox
 import subprocess
 import sys
+from .arguments import Pattern, DEFAULT_PATTERN, DEFAULT_COLORS
 
 
 class RGBKeyboardGUI(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        # Window config
         self.title("RGB Keyboard Controller")
         self.geometry("800x500")
         self.minsize(700, 400)
 
-        # Data
-        self.colors = ["#FF0000", "#FFFFFF", "#0000FF"]  # default: rood, wit, blauw
-        self.pattern_var = tk.StringVar(value="breathing")
+        self.colors = DEFAULT_COLORS.copy()
+        self.pattern_var = tk.StringVar(value=DEFAULT_PATTERN)
         self.speed_var = tk.IntVar(value=5)
         self.intensity_var = tk.IntVar(value=16)
 
         self._build_ui()
 
     def _build_ui(self):
-        # Hoofdframe
         main = ttk.Frame(self, padding=10)
         main.pack(fill=tk.BOTH, expand=True)
 
-        # Titel
         title = ttk.Label(main, text="RGB Keyboard Controller", font=("Segoe UI", 18, "bold"))
         title.pack(pady=(0, 10))
 
-        # Bovenste controls (pattern, speed, intensity)
         top_frame = ttk.Frame(main)
         top_frame.pack(fill=tk.X, pady=5)
 
-        # Pattern
         pattern_frame = ttk.Frame(top_frame)
         pattern_frame.pack(side=tk.LEFT, padx=10)
         ttk.Label(pattern_frame, text="Pattern:").pack(anchor="w")
-        patterns = ["solid", "breathing", "wave", "blinking", "flow"]
+        patterns = list(Pattern.choices())
         pattern_combo = ttk.Combobox(
             pattern_frame,
             textvariable=self.pattern_var,
@@ -55,7 +50,6 @@ class RGBKeyboardGUI(tk.Tk):
         )
         pattern_combo.pack()
 
-        # Speed
         speed_frame = ttk.Frame(top_frame)
         speed_frame.pack(side=tk.LEFT, padx=30)
         ttk.Label(speed_frame, text="Speed (0–8):").pack(anchor="w")
@@ -71,7 +65,6 @@ class RGBKeyboardGUI(tk.Tk):
         self.speed_value_label = ttk.Label(speed_frame, text=str(self.speed_var.get()))
         self.speed_value_label.pack(anchor="e")
 
-        # Intensity
         intensity_frame = ttk.Frame(top_frame)
         intensity_frame.pack(side=tk.LEFT, padx=30)
         ttk.Label(intensity_frame, text="Intensity (0–32):").pack(anchor="w")
@@ -87,15 +80,12 @@ class RGBKeyboardGUI(tk.Tk):
         self.intensity_value_label = ttk.Label(intensity_frame, text=str(self.intensity_var.get()))
         self.intensity_value_label.pack(anchor="e")
 
-        # Kleursectie
         color_section = ttk.Labelframe(main, text="Colors", padding=10)
         color_section.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        # Kleurweergave
         self.colors_frame = ttk.Frame(color_section)
         self.colors_frame.pack(fill=tk.X, pady=(0, 10))
 
-        # Kleurbuttons
         btn_frame = ttk.Frame(color_section)
         btn_frame.pack(fill=tk.X)
 
@@ -114,26 +104,22 @@ class RGBKeyboardGUI(tk.Tk):
         ocean_btn = ttk.Button(btn_frame, text="Ocean Preset", command=self.set_ocean_preset)
         ocean_btn.pack(side=tk.LEFT, padx=5)
 
-        # Apply-knop
         apply_frame = ttk.Frame(main)
         apply_frame.pack(fill=tk.X, pady=10)
 
         self.apply_button = ttk.Button(apply_frame, text="Apply to Keyboard", command=self.apply_settings)
         self.apply_button.pack(ipady=5)
 
-        # Statusbalk
         self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(self, textvariable=self.status_var, anchor="w", relief=tk.SUNKEN)
         status_bar.pack(fill=tk.X, side=tk.BOTTOM)
 
-        # Init kleuren tonen
         self.update_colors_display()
 
     def _update_label(self, label, value: int):
         label.config(text=str(value))
 
     def update_colors_display(self):
-        # oude widgets weg
         for child in self.colors_frame.winfo_children():
             child.destroy()
 

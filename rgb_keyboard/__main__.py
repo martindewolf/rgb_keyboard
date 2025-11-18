@@ -4,7 +4,7 @@ from elevate import elevate
 import os
 
 from rgb_keyboard.driver import KeyboardControler
-from rgb_keyboard.arguments import Color, Pattern, UltimateHelpFormatter
+from rgb_keyboard.arguments import Color, Pattern, UltimateHelpFormatter, DEFAULT_PATTERN, DEFAULT_COLORS
 
 
 parser = argparse.ArgumentParser(
@@ -20,10 +20,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-c", "--colors",
                     help=f"Select colors to generate a light pattern. "
                          f"Use a comma separated list with #RRGGBB colors or {{{','.join(Color.choices())}}}.",
-                    default="red,white,blue")
+                    default=",".join(DEFAULT_COLORS))
 parser.add_argument("-p", "--pattern",
                     help="Pattern of the effect.",
-                    default="breathing",
+                    default=DEFAULT_PATTERN,
                     choices=Pattern.choices())
 parser.add_argument("-s", "--speed",
                     help="Speed of the effect transitions. 1 (fast) to 8 (slow), 0  is no transition.",
@@ -37,9 +37,9 @@ parser.add_argument("-r", "--no_root_privileges", dest='root', action='store_tru
 
 def main():
     parsed = parser.parse_args()
-    colors = [Color(color) for color in parsed.colors.split(",")]
+    colors = [Color.get_by_name(color) for color in parsed.colors.split(",")]
     colors = _expand_colors_to(colors, 7)
-    pattern = Pattern(parsed.pattern)
+    pattern = Pattern.get_by_name(parsed.pattern)
 
     if not os.geteuid() == 0 and not parsed.root:
         elevate()

@@ -27,7 +27,7 @@ class KeyboardControler:
             for region, rgb in enumerate(rgbs, 1)
         ]
         # And define other properties
-        properties = self.pattern_flag_prefix + [pattern.pattern, speed, intensity, 0x08, 0x00, 0x01]
+        properties = self.pattern_flag_prefix + [pattern.value, speed, intensity, 0x08, 0x00, 0x01]
         cmds.append(properties)
         self._send_command(*cmds)
 
