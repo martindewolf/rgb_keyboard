@@ -31,7 +31,7 @@ setup(
     install_requires=[
         "hid",
         "elevate",
-        "customtkinter",
+        "PyQt6",
     ],
     entry_points={
         "console_scripts": [

@@ -14,7 +14,7 @@ authors = [
 dependencies = [
     "hid",
     "elevate",
-    "customtkinter",
+    "PyQt6",
 ]
 
 [project.urls]
