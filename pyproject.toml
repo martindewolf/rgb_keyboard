@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rgb-keyboard"
+version = "1.1.0"
+description = "Driver and interface to control keyboard RGB LED of ITE 8291 rev 0.02 (e.g. Avell laptops)"
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    {name = "Eder Martins / Martin de Wolf"}
+]
+dependencies = [
+    "hid",
+    "elevate",
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/martindewolf/rgb_keyboard/issues"
+"Source" = "https://github.com/martindewolf/rgb_keyboard"
+
+[project.scripts]
+keyboard_light = "rgb_keyboard.__main__:main"
+keyboard_light_gui = "rgb_keyboard.gui:main"
